@@ -8,8 +8,8 @@ namespace BookCatalogueAPI.Data
         {
             using (var db = new BookCatalogueContext())
             {
-                // Makes the seeding idempotent
-                if (!db.Database.EnsureCreated()) return;
+                // // Makes the seeding idempotent
+                // if (!db.Database.EnsureCreated()) return;
 
                 List<Author> authors = new List<Author>()
                 {

@@ -5,6 +5,9 @@ services:
     environment:
     - MYSQL_ROOT_HOST=%
     - MYSQL_ROOT_PASSWORD=password
+    # command: mysql -uroot -ppassword < /var/lib/mysql/BookCatalogue.sql
+    # volumes:
+    #   - ../db:/var/lib/mysql/
     ports:
       - "3306:3306"
   frontend:
