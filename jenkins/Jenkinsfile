@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    
+    environment {
+		DOCKERHUB_CREDENTIALS=credentials('dockerhub-credentials-ptriantafyll')
+	}
+    
+    stages {
+        stage('Git Checkout'){
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/jenkins-docker']], userRemoteConfigs: [[url: 'https://github.com/dimitrisgiannopoulos/Simple-Book-Catalogue-API-with-a-Jenkins-Pipeline']]])
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ptriantafyll/bookcatalogueapi -f ./docker/Dockerfile ."
+            }
+        }
+        stage('Docker Login'){
+            steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+        }
+        stage('Push to docker hub'){
+            steps{
+                sh "docker push ptriantafyll/bookcatalogueapi"
+            }
+        }
+        stage('Deploy to local Kubernetes cluster'){
+            steps {
+                kubeconfig(credentialsId: 'kubernetes', serverUrl: 'https://kubernetes.docker.internal:6443', caCertificate: '') {
+                    sh 'kubectl apply -f ./kubernetes/'
+                }
+            }
+        }
+    }
+    
+    post {
+		always {
+			sh 'docker logout'
+		}
+	}
+}
